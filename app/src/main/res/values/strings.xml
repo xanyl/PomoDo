@@ -9,4 +9,53 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+
+
+
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="WelcomeText">Welcome Back,</string>
+    <string name="trying_to_enter">trying to enter</string>
+    <string name="loginText">Please Login to your account</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="closeButton">Close Button for Activity</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
+    <string name="nav_header_title">Your Name</string>
+    <string name="nav_header_subtitle">your.email@mail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+<!--    <string name="action_settings">Settings</string>-->
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="log_in">LogIn</string>
+    <string name="signup">Create An Account</string>
+
+
+    <string name="countdown_time">25:00</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="start_status_label">Start Timer</string>
+    <string name="resume_status_label">Resume</string>
+    <string name="pause_status_label">Pause</string>
+    <string name="settings_button">Settings button</string>
+    <string name="break_label">Break Interval</string>
+    <string name="break_description_label">How long should a break be?</string>
+    <string name="break_status_view">5 Minutes</string>
+    <string name="work_label">Work Interval</string>
+    <string name="work_description_label">How long should a working period be?</string>
+    <string name="work_status_view">25 Minutes</string>
+    <string name="theme_label">Theme</string>
+    <string name="theme_description_label">What is the colour scheme of the app?</string>
+    <string name="dark_theme_label">Dark</string>
+    <string name="light_theme_label">Light</string>
+    <string name="countdown_work_label">WORK</string>
+    <string name="countdown_break_label">BREAK</string>
+    <string name="channel_name">Timer Toggle</string>
 </resources>
