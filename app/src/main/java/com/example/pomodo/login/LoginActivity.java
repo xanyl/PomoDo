@@ -49,10 +49,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void signIn(String email, String password) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+        try {
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = auth.getCurrentUser();
@@ -79,7 +78,10 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "An error occurred.", Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            // Handle exceptions here
+            Toast.makeText(LoginActivity.this, "An error occurred.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

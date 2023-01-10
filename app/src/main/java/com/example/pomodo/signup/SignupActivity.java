@@ -31,7 +31,6 @@ public class SignupActivity extends AppCompatActivity {
     private EditText mEmailEditText;
     private EditText mPasswordEditText;
     private Button mSignupButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +45,6 @@ public class SignupActivity extends AppCompatActivity {
             String name = mNameEditText.getText().toString();
             String email = mEmailEditText.getText().toString();
             String password = mPasswordEditText.getText().toString();
-
             // Validate the input
             if (name.isEmpty()) {
                 mNameEditText.setError("Name is required");
@@ -65,10 +63,7 @@ public class SignupActivity extends AppCompatActivity {
                 return;
             }
             signup(email, password);
-
-
         });
-
         etGoToLogin.setOnClickListener(view -> {
             // Start the Login activity
             Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
@@ -76,14 +71,12 @@ public class SignupActivity extends AppCompatActivity {
         });
         setAppBar();
     }
-
     private void setAppBar() {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
         }
     }
-
     private void signup(String email, String password) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -97,7 +90,6 @@ public class SignupActivity extends AppCompatActivity {
                     // If sign in fails, display a message to the user
                     Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
 //                            updateUI(null);
-
                     // Check for specific error and display a corresponding message
                     try {
                         throw task.getException();
@@ -115,7 +107,6 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
