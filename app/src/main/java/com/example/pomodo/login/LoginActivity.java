@@ -31,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         TextView signUp = findViewById(R.id.signUp);
+        TextView forgetpassword = findViewById(R.id.forgetPassword);
         mEmailEditText = findViewById(R.id.username);
         mPasswordEditText = findViewById(R.id.password);
         mSignInButton = findViewById(R.id.login);
@@ -43,6 +44,11 @@ public class LoginActivity extends AppCompatActivity {
         signUp.setOnClickListener(view -> {
             // Start the Login activity
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
+        forgetpassword.setOnClickListener(view -> {
+            // Start the Login activity
+            Intent intent = new Intent(LoginActivity.this, ForgetPassword.class);
             startActivity(intent);
         });
     }

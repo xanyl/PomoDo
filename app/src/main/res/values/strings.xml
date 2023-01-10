@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">PomoDo</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
@@ -11,7 +11,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
 
-    <string name="prompt_email">Email</string>
+
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -56,4 +56,8 @@
     <string name="countdown_work_label">WORK</string>
     <string name="countdown_break_label">BREAK</string>
     <string name="channel_name">Timer Toggle</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="prompt_email" tools:ignore="DuplicateDefinition">Email Address</string>
+    <string name="send_email">Send Email</string>
+
 </resources>
