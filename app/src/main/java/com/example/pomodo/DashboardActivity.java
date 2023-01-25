@@ -1,4 +1,4 @@
-package com.example.pomodo;
+ package com.example.pomodo;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,15 +30,10 @@ public class DashboardActivity extends AppCompatActivity {
         countdownTimer = findViewById(R.id.countdownTimer);
         startPauseButton = findViewById(R.id.startPauseButton);
         cancelButton = findViewById(R.id.cancelButton);
-
-
         // Get the app bar
         ActionBar appBar = getSupportActionBar();
-
         // Enable the app bar's "home" button, which will also show the settings button
         appBar.setDisplayHomeAsUpEnabled(true);
-
-
         // Initialize CountDownTimer
         countDownTimer = new CountDownTimer(60000, 1000) {
             @Override
@@ -46,7 +41,6 @@ public class DashboardActivity extends AppCompatActivity {
                 progressCountdownBar.setProgress((int) millisUntilFinished / 1000);
                 countdownTimer.setText(String.valueOf(millisUntilFinished / 1000));
             }
-
             @Override
             public void onFinish() {
                 progressCountdownBar.setProgress(0);
@@ -55,7 +49,6 @@ public class DashboardActivity extends AppCompatActivity {
                 isTimerRunning = false;
             }
         };
-
         startPauseButton.setOnClickListener(view -> {
             if (!isTimerRunning) {
                 countDownTimer.start();
@@ -77,7 +70,6 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -91,7 +83,6 @@ public class DashboardActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             // Open the settings activity

@@ -26,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SignupActivity extends AppCompatActivity {
-
     private EditText mNameEditText;
     private EditText mEmailEditText;
     private EditText mPasswordEditText;
@@ -35,7 +34,6 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-
         TextView etGoToLogin = findViewById(R.id.etGoTOLogin);
         mNameEditText = findViewById(R.id.etUsername);
         mEmailEditText = findViewById(R.id.etEmail);
