@@ -7,68 +7,84 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Toast;
 import com.example.pomodo.login.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class DashboardActivity extends AppCompatActivity {
-    private ProgressBar progressCountdownBar;
-    private TextView countdownTimer;
-    private Button startPauseButton;
-    private Button cancelButton;
+    private final static long DEFAULT_WORK_DURATION = 1500000;
+    private final static long DEFAULT_BREAK_DURATION = 300000;
+    private final static int COUNTDOWN_INTERVAL = 150;
     private CountDownTimer countDownTimer;
-    private boolean isTimerRunning;
+    private long setWorkDurationInMillis = DEFAULT_WORK_DURATION;
+    private long currentTotalDurationInMillis;
+    private long timeLeftInMillis;
+    private Animation blinking;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-        progressCountdownBar = findViewById(R.id.progressCountdownBar);
-        countdownTimer = findViewById(R.id.countdownTimer);
-        startPauseButton = findViewById(R.id.startPauseButton);
-        cancelButton = findViewById(R.id.cancelButton);
+
+        currentTotalDurationInMillis = setWorkDurationInMillis;
+        timeLeftInMillis = currentTotalDurationInMillis;
+        countDownTimer = new PomodoroTimer(setWorkDurationInMillis, COUNTDOWN_INTERVAL);
+        // Initiate an object for Blinking animation modifier.
+        blinking = new AlphaAnimation(0.0f, 1.0f);
+        blinking.setDuration(500);
+        blinking.setStartOffset(20);
+        blinking.setRepeatMode(Animation.REVERSE);
+        blinking.setRepeatCount(Animation.INFINITE);
+
+//        progressCountdownBar = findViewById(R.id.progressCountdownBar);
+//        countdownTimer = findViewById(R.id.countdownTimer);
+//        startPauseButton = findViewById(R.id.startPauseButton);
+//        cancelButton = findViewById(R.id.cancelButton);
         // Get the app bar
         ActionBar appBar = getSupportActionBar();
         // Enable the app bar's "home" button, which will also show the settings button
         appBar.setDisplayHomeAsUpEnabled(true);
         // Initialize CountDownTimer
-        countDownTimer = new CountDownTimer(60000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                progressCountdownBar.setProgress((int) millisUntilFinished / 1000);
-                countdownTimer.setText(String.valueOf(millisUntilFinished / 1000));
-            }
-            @Override
-            public void onFinish() {
-                progressCountdownBar.setProgress(0);
-                countdownTimer.setText("0");
-                startPauseButton.setText(R.string.start_status_label);
-                isTimerRunning = false;
-            }
-        };
-        startPauseButton.setOnClickListener(view -> {
-            if (!isTimerRunning) {
-                countDownTimer.start();
-                startPauseButton.setText(R.string.pause_status_label);
-                isTimerRunning = true;
-            } else {
-                countDownTimer.cancel();
-                startPauseButton.setText(R.string.start_status_label);
-                isTimerRunning = false;
-            }
-        });
-
-        cancelButton.setOnClickListener(view -> {
-            countDownTimer.cancel();
-            progressCountdownBar.setProgress(0);
-            countdownTimer.setText("60");
-            startPauseButton.setText(R.string.start_status_label);
-            isTimerRunning = false;
-        });
+//        countDownTimer = new CountDownTimer(60000, 1000) {
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                progressCountdownBar.setProgress((int) millisUntilFinished / 1000);
+//                countdownTimer.setText(String.valueOf(millisUntilFinished / 1000));
+//            }
+//            @Override
+//            public void onFinish() {
+//                progressCountdownBar.setProgress(0);
+//                countdownTimer.setText("0");
+//                startPauseButton.setText(R.string.start_status_label);
+//                isTimerRunning = false;
+//            }
+//        };
+//        startPauseButton.setOnClickListener(view -> {
+//            if (!isTimerRunning) {
+//                countDownTimer.start();
+//                startPauseButton.setText(R.string.pause_status_label);
+//                isTimerRunning = true;
+//            } else {
+//                countDownTimer.cancel();
+//                startPauseButton.setText(R.string.start_status_label);
+//                isTimerRunning = false;
+//            }
+//        });
+//
+//        cancelButton.setOnClickListener(view -> {
+//            countDownTimer.cancel();
+//            progressCountdownBar.setProgress(0);
+//            countdownTimer.setText("60");
+//            startPauseButton.setText(R.string.start_status_label);
+//            isTimerRunning = false;
+//        });
     }
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -113,4 +129,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
