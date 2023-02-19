@@ -1,7 +1,9 @@
 package com.example.pomodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.pomodo.login.LoginActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,9 +16,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pomodo.databinding.ActivityMainBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,12 +63,34 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // Open the settings activity
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
-
+        if (id == R.id.logout) {
+            // Check if user is signed in
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                // User is signed in, log out
+                try {
+                    FirebaseAuth.getInstance().signOut();
+                    Intent loginIntent = new Intent(this, LoginActivity.class);
+                    startActivity(loginIntent);
+                } catch (Exception e) {
+                    // Show error message to the user
+                    Toast.makeText(this, "An error occurred while logging out", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // User is not signed in
+                // Handle this case as needed
+                Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();
+                Intent loginIntent = new Intent(this, LoginActivity.class);
+                startActivity(loginIntent);
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
