@@ -52,6 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private final static int minTimeInMinutes = 1;
     private SharedPreferences savedPrefs;
+    public final String PREFS_NAME = "SeekBarPrefs";
 
 
     @Override
@@ -64,7 +65,6 @@ public class SettingsActivity extends AppCompatActivity {
         workSeekBar = findViewById(R.id.workSeekBar);
         workStatusView = findViewById(R.id.workStatusView);
         themeRadioGroup = findViewById(R.id.themeRadioGroup);
-
 
         // Get variables from main activity, where this activity is called.
         Intent intent = getIntent();
@@ -94,44 +94,12 @@ public class SettingsActivity extends AppCompatActivity {
         lightThemeRadioButton = findViewById(R.id.lightThemeRadioButton); // assign light theme radio button
         darkThemeRadioButton = findViewById(R.id.darkThemeRadioButton); // assign dark theme radio button
         breakLabel = findViewById(R.id.breakLabel);
+
         setAppBar();
 
-
-//        //Save Settings
-//        saveButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Save the current progress of breakSeekBar and workSeekBar
-//                saveSettings(breakProgress, workProgress);
-//
-//                // Create the intent for saving variables back to main.
-//                Intent intent = new Intent();
-//
-//                // Save variables as key value pairs.
-//                intent.putExtra("isLightTheme", isLightTheme);
-//                intent.putExtra("newBreakDurationInMillis", newBreakDurationInMillis);
-//                intent.putExtra("newWorkDurationInMillis", newWorkDurationInMillis);
-//
-//                // Set result to ok code to declare that app has return normally.
-//                setResult(RESULT_OK, intent);
-//
-//                // Finish settings activity, return to main activity.
-//                finish();
-//                Toast.makeText(SettingsActivity.this, "Settings saved", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            private void saveSettings(int breakProgress, int workProgress) {
-//                SharedPreferences.Editor editor = savedPrefs.edit();
-//                editor.putInt("breakProgress", breakProgress);
-//                editor.putInt("workProgress", workProgress);
-//                editor.putBoolean("isLightTheme", isLightTheme);
-//                editor.putLong("newBreakDurationInMillis", newBreakDurationInMillis);
-//                editor.putLong("newWorkDurationInMillis", newWorkDurationInMillis);
-//                editor.apply();
-////                Log.d("TAG", String.valueOf(workProgress));
-//            }
-//        });
     }
+
+
 
     class RadioGroupListener implements RadioGroup.OnCheckedChangeListener {
 
@@ -155,6 +123,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
+
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             // Declare local variables.
@@ -171,6 +140,9 @@ public class SettingsActivity extends AppCompatActivity {
                 // Set break status and save new break duration in millis.
 
                 newBreakDurationInMillis = convertMinToMillis(breakStatus);
+                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putInt("breakSeekBarProgress", progress);
+                editor.apply();
             }
 
             // If the work seek bar is changed, set text view for work status.
@@ -185,6 +157,10 @@ public class SettingsActivity extends AppCompatActivity {
                 // Set work status and save new work duration in millis.
 //                workStatusView.setText(statusView);
                 newWorkDurationInMillis = convertMinToMillis(workStatus);
+                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putInt("workSeekBarProgress", progress);
+                editor.apply();
+
             }
         }
 
@@ -200,8 +176,17 @@ public class SettingsActivity extends AppCompatActivity {
             // Not Used / Implemented
         }
 
-    }
 
+
+    }
+    private void loadSeekBarProgress() {
+        // Load the progress value using SharedPreferences and set it as the progress of the SeekBar
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int breakSeekBarProgress = prefs.getInt("breakSeekBarProgress", (int) newBreakDurationInMillis);
+        int workSeekBarProgress = prefs.getInt("workSeekBarProgress", (int) newWorkDurationInMillis);
+        breakSeekBar.setProgress(breakSeekBarProgress);
+        workSeekBar.setProgress(workSeekBarProgress);
+    }
     class ButtonListener implements View.OnClickListener {
 
         /*
@@ -214,9 +199,10 @@ public class SettingsActivity extends AppCompatActivity {
             if (v.getId() == R.id.saveButton) {
 //             Save the current progress of breakSeekBar and workSeekBar
                 SharedPreferences.Editor editor = savedPrefs.edit();
-                editor.putInt("workStatus", workStatus);
-                editor.putInt("breakStatus", breakStatus);
+                editor.putInt("newWorkDuration", (int) newWorkDurationInMillis);
+                editor.putInt("newBreakDuration", (int) newBreakDurationInMillis);
                 editor.apply();
+                loadSeekBarProgress();
                 Toast.makeText(getApplicationContext(), "Settings saved!", Toast.LENGTH_SHORT).show(); }
 
 
@@ -318,8 +304,8 @@ public class SettingsActivity extends AppCompatActivity {
     public void onPause() {
         // Save the billAmountString and tipPercentage instance variables
         SharedPreferences.Editor prefsEditor = savedPrefs.edit();
-        prefsEditor.putInt("breakStatus", breakStatus);
-        prefsEditor.putInt("workStatus", workStatus);
+        prefsEditor.putInt("breakStatus", (int) newBreakDurationInMillis);
+        prefsEditor.putInt("workStatus", (int) newWorkDurationInMillis);
         prefsEditor.commit();
 
         // Calling the parent onPause() must be done LAST
@@ -334,8 +320,8 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
 
         // Load the instance variables back (or default values)
-        breakStatus = savedPrefs.getInt("breakStatus", 5);
-        workStatus = savedPrefs.getInt("workStatus", 25);
+        breakStatus = savedPrefs.getInt("breakStatus", (int) newBreakDurationInMillis);
+        workStatus = savedPrefs.getInt("workStatus", (int) newWorkDurationInMillis);
     }
 
 

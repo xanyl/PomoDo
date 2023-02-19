@@ -1,12 +1,10 @@
 package com.example.pomodo;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -20,18 +18,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
 import com.example.pomodo.login.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -40,16 +33,13 @@ public class DashboardActivity extends AppCompatActivity {
     private final static int REQUEST_CODE_SETTINGS = 0;
     private final static int COUNTDOWN_INTERVAL = 150;
     private final static int NOTIFICATION_ID = 0;
-    private final static String CHANNEL_ID = "togglechannel";
+    private final static String CHANNEL_ID = "toggle-channel";
     private CountDownTimer countDownTimer;
     private TextView countdownTimeLabel;
     private ProgressBar countdownProgressBar;
     private Button startPauseButton;
     private Button cancelButton;
-    private ConstraintLayout mainLayout;
     private Animation blinking;
-    private Drawable lightSettingsButtonImage;
-    private Drawable darkSettingsButtonImage;
     private CharSequence startStatusLabel;
     private CharSequence pauseStatusLabel;
     private CharSequence resumeStatusLabel;
@@ -146,10 +136,16 @@ public class DashboardActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            // Open the settings activity
-            Intent intent = new Intent(this, SettingsActivity.class);
+            // Creating new intent, passing the required variable for setting display.
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            intent.putExtra("isLightTheme", isLightTheme);
+            intent.putExtra("setWorkDurationInMillis", setWorkDurationInMillis);
+            intent.putExtra("setBreakDurationInMillis", setBreakDurationInMillis);
+
+            // Start activity with request for to reference it again when the settings activity is done.
             startActivity(intent);
             return true;
         }
@@ -205,10 +201,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         @Override
         public void onFinish() {
-
             // Execute necessary changes and steps to set up for the next timer.
             toggleWorkMode();
-
             // Execute onFinish specific prompts to inform user that current timer is up.
             if (isWorkMode) {
                 countdownTimeLabel.setText(R.string.countdown_work_label);
@@ -217,10 +211,8 @@ public class DashboardActivity extends AppCompatActivity {
                 countdownTimeLabel.setText(R.string.countdown_break_label);
                 countdownTimeLabel.setTextColor(colourSecondary);
             }
-
             // Set countdown progressbar to 0 just in case.
             countdownProgressBar.setProgress(0);
-
             // Startup timer standby mode.
             timerStandby();
             // Send notification to notify that current timer is up.
@@ -228,20 +220,16 @@ public class DashboardActivity extends AppCompatActivity {
 
         }
     }
-
     private void createNotificationChannel() {
-
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
             // Initialize variables required to set up notification channel.
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_name);
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
-
             // Register the channel with the system. The importance or any other notification
             // behaviors cannot be changed after this.
             NotificationManager channelManager = getSystemService(NotificationManager.class);
@@ -254,7 +242,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         }
     }
-
 
     private void sendTimerToggleNotification() {
         // Declare local variables used.
@@ -278,7 +265,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Initiate notification with the correct/wanted properties.
         NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-//                 .setSmallIcon(R.drawable.omega)
+                 .setSmallIcon(R.drawable.pomodo)
                 .setContentTitle("Pomodo").setContentText(text).setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ALARM).setContentIntent(pendingIntent).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setAutoCancel(true);
 
         // Send notification.
@@ -482,13 +469,10 @@ public class DashboardActivity extends AppCompatActivity {
      * This method will update the colour scheme and then update the widgets when called.
      */
     private void updateActivityColourScheme() {
-
         // Update the colour scheme colours followed by the update of all widgets.
         updateColourSchemeColour();
         updateWidgetColourScheme();
-
     }
-
     /*
      * This method will update the current total time if required. Specifically, this method is
      * designed to run after returning from the settings. If the current total time for the
@@ -499,7 +483,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         // If the timer is a fresh timer, update the current total time with countdown time.
         if (timeLeftInMillis == currentTotalDurationInMillis) {
-
             // If current state is work mode, change the total time for total work time.
             if (isWorkMode) {
                 currentTotalDurationInMillis = setWorkDurationInMillis;
@@ -508,10 +491,8 @@ public class DashboardActivity extends AppCompatActivity {
             else {
                 currentTotalDurationInMillis = setBreakDurationInMillis;
             }
-
             // Change the countdown timer to the new total time since this is a fresh start.
             timeLeftInMillis = currentTotalDurationInMillis;
-
             // update timer widgets for the progress bar changes along with the countdown label.
             updateTimerWidgets();
         }
@@ -526,7 +507,6 @@ public class DashboardActivity extends AppCompatActivity {
         // User filtering to change the colour of the progress bar drawable.
         countdownProgressBar.getProgressDrawable().setColorFilter(colour, android.graphics.PorterDuff.Mode.SRC_IN);
     }
-
     /*
      * This method will toggle from work mode to break mode and vise versa depending on the current
      * mode. This method will accomplish this by changing variables and modifying attributes of
@@ -536,18 +516,14 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Toggle to break mode if currently in work mode.
         if (isWorkMode) {
-
             isWorkMode = false;
-
             // Set total duration for the total break duration and set appropriate progress colour.
             currentTotalDurationInMillis = setBreakDurationInMillis;
             setProgressBarColour(colourSecondary);
         }
         // Toggle to work mode if currently in break mode.
         else {
-
             isWorkMode = true;
-
             // Set total duration for the total work duration and set appropriate progress colour.
             currentTotalDurationInMillis = setWorkDurationInMillis;
             setProgressBarColour(colourPrimary);
@@ -557,23 +533,7 @@ public class DashboardActivity extends AppCompatActivity {
         countDownTimer = new PomodoroTimer(currentTotalDurationInMillis, COUNTDOWN_INTERVAL);
     }
 
-    /*
-     * This method will start a new intent to start the settings activity for receiving data changed
-     * in the settings activity. Before starting the activity, the appropriate variables are passed
-     * into the settings activity for to display the current settings to the user on startup.
-     */
-    public void openSettingsActivity() {
 
-        // Creating new intent, passing the required variable for setting display.
-        Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-        intent.putExtra("isLightTheme", isLightTheme);
-        intent.putExtra("setWorkDurationInMillis", setWorkDurationInMillis);
-        intent.putExtra("setBreakDurationInMillis", setBreakDurationInMillis);
-
-        // Start activity with request for to reference it again when the settings activity is done.
-        startActivityForResult(intent, REQUEST_CODE_SETTINGS);
-
-    }
 
     /*
      * This method is automatically called when the returned to the main activity from another
