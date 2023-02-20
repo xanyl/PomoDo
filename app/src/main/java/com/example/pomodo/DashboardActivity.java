@@ -63,6 +63,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 // Initialize the "set time" (default work-mode time is loaded on the first creation).
+
         currentTotalDurationInMillis = setWorkDurationInMillis;
         timeLeftInMillis = currentTotalDurationInMillis;
 
@@ -115,7 +116,7 @@ public class DashboardActivity extends AppCompatActivity {
         setProgressBarColour(colourPrimary);
         countdownTimeLabel.startAnimation(blinking);
         updateWidgetColourScheme();
-        updateTimerWidgets();
+
 
         SharedPreferences savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
         breakProgress = savedPrefs.getInt("breakSeekBarProgress", breakProgress);
@@ -124,16 +125,14 @@ public class DashboardActivity extends AppCompatActivity {
 
         setWorkDurationInMillis = convertMinToMillis(workProgress);
         setBreakDurationInMillis = convertMinToMillis(breakProgress);
-
+        updateTimerWidgets();
+        updateCurrentTotalTime();
 
         ActionBar appBar = getSupportActionBar();
         // Enable the app bar's "home" button, which will also show the settings button
         assert appBar != null;
         appBar.setDisplayHomeAsUpEnabled(true);
-
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -209,7 +208,9 @@ public class DashboardActivity extends AppCompatActivity {
 
             // update widget countdown widgets and text responsible for displaying the text.
             updateTimerWidgets();
+
         }
+
 
         @Override
         public void onFinish() {
@@ -275,7 +276,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Initiate notification with the correct/wanted properties.
         NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                 .setSmallIcon(R.drawable.pomodo)
+                 .setSmallIcon(R.drawable.ic_pomodo)
                 .setContentTitle("Pomodo").setContentText(text).setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ALARM).setContentIntent(pendingIntent).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setAutoCancel(true);
 
         // Send notification.
@@ -492,7 +493,6 @@ public class DashboardActivity extends AppCompatActivity {
      * to accommodate for the new change.
      */
     private void updateCurrentTotalTime() {
-
         // If the timer is a fresh timer, update the current total time with countdown time.
         if (timeLeftInMillis == currentTotalDurationInMillis) {
             // If current state is work mode, change the total time for total work time.
@@ -582,10 +582,8 @@ public class DashboardActivity extends AppCompatActivity {
      * ensure that while the timer is running, never let the progress percent reach 0.
      */
     private void updateTimerWidgets() {
-
         // Update countdown label.
         updateCountDownText();
-
         // Get actual current percentage of timer.
         int progressPercent = (int) (100.0 * timeLeftInMillis / currentTotalDurationInMillis);
 
