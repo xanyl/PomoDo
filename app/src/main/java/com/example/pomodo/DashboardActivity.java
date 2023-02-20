@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -28,8 +28,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity {
-    private final static long DEFAULT_WORK_DURATION = 1500000;
-    private final static long DEFAULT_BREAK_DURATION = 300000;
+
     private final static int REQUEST_CODE_SETTINGS = 0;
     private final static int COUNTDOWN_INTERVAL = 150;
     private final static int NOTIFICATION_ID = 0;
@@ -43,8 +42,8 @@ public class DashboardActivity extends AppCompatActivity {
     private CharSequence startStatusLabel;
     private CharSequence pauseStatusLabel;
     private CharSequence resumeStatusLabel;
-    private long setWorkDurationInMillis = DEFAULT_WORK_DURATION;
-    private long setBreakDurationInMillis = DEFAULT_BREAK_DURATION;
+    private long setWorkDurationInMillis ;
+    private long setBreakDurationInMillis ;
     private boolean isCountdownRunning;
     private long currentTotalDurationInMillis;
     private long timeLeftInMillis;
@@ -52,15 +51,18 @@ public class DashboardActivity extends AppCompatActivity {
     private int colourPrimary;
     private int colourSecondary;
     private int colourText;
-    private int colourBackground;
     private boolean isLightTheme;
     private long backPressedTime;
+    private int breakProgress;
+    private int workProgress;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-// Initialize the "set time" (default workmode time is loaded on the first creation).
+// Initialize the "set time" (default work-mode time is loaded on the first creation).
         currentTotalDurationInMillis = setWorkDurationInMillis;
         timeLeftInMillis = currentTotalDurationInMillis;
 
@@ -86,7 +88,6 @@ public class DashboardActivity extends AppCompatActivity {
         startStatusLabel = getResources().getText(R.string.start_status_label);
         pauseStatusLabel = getResources().getText(R.string.pause_status_label);
         resumeStatusLabel = getResources().getText(R.string.resume_status_label);
-
 
 //        lightSettingsButtonImage = getResources().getDrawable(R.drawable.light_settings);
 //        darkSettingsButtonImage = getResources().getDrawable(R.drawable.dark_settings);
@@ -116,9 +117,20 @@ public class DashboardActivity extends AppCompatActivity {
         updateWidgetColourScheme();
         updateTimerWidgets();
 
+        SharedPreferences savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
+        breakProgress = savedPrefs.getInt("breakSeekBarProgress", breakProgress);
+        workProgress = savedPrefs.getInt("workSeekBarProgress", workProgress);
+
+
+        setWorkDurationInMillis = convertMinToMillis(workProgress);
+        setBreakDurationInMillis = convertMinToMillis(breakProgress);
+
+
         ActionBar appBar = getSupportActionBar();
         // Enable the app bar's "home" button, which will also show the settings button
+        assert appBar != null;
         appBar.setDisplayHomeAsUpEnabled(true);
+
 
     }
 
@@ -141,9 +153,9 @@ public class DashboardActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             // Creating new intent, passing the required variable for setting display.
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-            intent.putExtra("isLightTheme", isLightTheme);
-            intent.putExtra("setWorkDurationInMillis", setWorkDurationInMillis);
-            intent.putExtra("setBreakDurationInMillis", setBreakDurationInMillis);
+//            intent.putExtra("isLightTheme", isLightTheme);
+//            intent.putExtra("setWorkDurationInMillis", setWorkDurationInMillis);
+//            intent.putExtra("setBreakDurationInMillis", setBreakDurationInMillis);
 
             // Start activity with request for to reference it again when the settings activity is done.
             startActivity(intent);
@@ -223,23 +235,21 @@ public class DashboardActivity extends AppCompatActivity {
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Initialize variables required to set up notification channel.
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_name);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system. The importance or any other notification
-            // behaviors cannot be changed after this.
-            NotificationManager channelManager = getSystemService(NotificationManager.class);
+        // Initialize variables required to set up notification channel.
+        CharSequence name = getString(R.string.channel_name);
+        String description = getString(R.string.channel_name);
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system. The importance or any other notification
+        // behaviors cannot be changed after this.
+        NotificationManager channelManager = getSystemService(NotificationManager.class);
 
-            // Try to register the channel with the system.
-            try {
-                channelManager.createNotificationChannel(channel);
-            } catch (NullPointerException exception) {
-                Log.d("notificationChannel", "Unable to create notification channel");
-            }
+        // Try to register the channel with the system.
+        try {
+            channelManager.createNotificationChannel(channel);
+        } catch (NullPointerException exception) {
+            Log.d("notificationChannel", "Unable to create notification channel");
         }
     }
 
@@ -293,6 +303,7 @@ public class DashboardActivity extends AppCompatActivity {
      * Inner class for button listeners, handling all the button events within the main activity.
      */
     class ButtonListener implements View.OnClickListener {
+
 
         /*
          * This method is automatically called when any button within main activity is pressed.
@@ -364,6 +375,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void cancelTimer() {
 
         // Cancel the current timer, toggle work state, and update the timer widgets for display.
+
         countDownTimer.cancel();
         toggleWorkMode();
         updateTimerWidgets();
@@ -414,6 +426,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void updateColourSchemeColour() {
 
         // Light theme colours.
+        int colourBackground;
         if (isLightTheme) {
             colourPrimary = getResources().getColor(R.color.lightPrimary);
             colourSecondary = getResources().getColor(R.color.lightSecondary);
@@ -445,7 +458,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         // If on work mode, change colour for work related widgets accordingly.
         if (isWorkMode) {
-
             // Set countdown label with work mode colour if currently paused (not stopped, at new).
             if (!isCountdownRunning && timeLeftInMillis != currentTotalDurationInMillis) {
                 countdownTimeLabel.setTextColor(colourPrimary);
@@ -549,21 +561,18 @@ public class DashboardActivity extends AppCompatActivity {
 
         // The returned result data is identified by requestCode.
         // The request code is specified in startActivityForResult method.
-        switch (requestCode) {
-            // This request code is set by startActivityForResult(intent, REQUEST_CODE_SETTINGS).
-            case REQUEST_CODE_SETTINGS:
+        // This request code is set by startActivityForResult(intent, REQUEST_CODE_SETTINGS).
+        if (requestCode == REQUEST_CODE_SETTINGS) {// If returned normally, continue to retrieve and store data.
+            if (resultCode == RESULT_OK) {
+                // Save data from key value map.
+                isLightTheme = dataIntent.getBooleanExtra("isLightTheme", true);
+                setBreakDurationInMillis = dataIntent.getLongExtra("newBreakDurationInMillis", breakProgress);
+                setWorkDurationInMillis = dataIntent.getLongExtra("newWorkDurationInMillis", workProgress);
 
-                // If returned normally, continue to retrieve and store data.
-                if (resultCode == RESULT_OK) {
-                    // Save data from key value map.
-                    isLightTheme = dataIntent.getBooleanExtra("isLightTheme", true);
-                    setBreakDurationInMillis = dataIntent.getLongExtra("newBreakDurationInMillis", DEFAULT_BREAK_DURATION);
-                    setWorkDurationInMillis = dataIntent.getLongExtra("newWorkDurationInMillis", DEFAULT_WORK_DURATION);
-
-                    // Update theme and update current total time.
-                    updateActivityColourScheme();
-                    updateCurrentTotalTime();
-                }
+                // Update theme and update current total time.
+                updateActivityColourScheme();
+                updateCurrentTotalTime();
+            }
         }
     }
 
@@ -607,6 +616,13 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Display formatted string.
         countdownTimeLabel.setText(timeLeft);
+    }
+
+    private long convertMinToMillis(int minutes) {
+
+        // Return operation, converting minutes to milliseconds.
+        return ((long) minutes * 60 * 1000);
+
     }
 
     /*

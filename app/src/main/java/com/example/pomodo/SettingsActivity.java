@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -28,7 +28,9 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar workSeekBar;
     private TextView breakStatusView;
     private TextView workStatusView;
+
     private int breakProgress;
+
     private int workProgress;
     private Button saveButton;
     private int breakStatus;
@@ -74,17 +76,19 @@ public class SettingsActivity extends AppCompatActivity {
         themeRadioGroup.setOnCheckedChangeListener(new RadioGroupListener());
 
 
-        // get SharedPreferences object for saving variables onPause.
         savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
+        int breakProgress = savedPrefs.getInt("breakSeekBarProgress", 0);
+        int workProgress = savedPrefs.getInt("workSeekBarProgress", 0);
 
-//        breakProgress = savedPrefs.getInt("breakProgress", 0);
-//        workProgress = savedPrefs.getInt("workProgress", 0);
-
+        // Set the progress of the seek bars
+//        breakSeekBar.setProgress(breakProgress);
+//        workSeekBar.setProgress(workProgress);
 
         // Save appropriate variables retrieved from main to display current user settings.
         isLightTheme = intent.getBooleanExtra("isLightTheme", true);
         newBreakDurationInMillis = intent.getLongExtra("setBreakDurationInMillis", DEFAULT_BREAK_DURATION);
         newWorkDurationInMillis = intent.getLongExtra("setWorkDurationInMillis", DEFAULT_WORK_DURATION);
+
         breakStatus = convertMillisToMin(newBreakDurationInMillis);
         workStatus = convertMillisToMin(newWorkDurationInMillis);
 
@@ -94,7 +98,6 @@ public class SettingsActivity extends AppCompatActivity {
         lightThemeRadioButton = findViewById(R.id.lightThemeRadioButton); // assign light theme radio button
         darkThemeRadioButton = findViewById(R.id.darkThemeRadioButton); // assign dark theme radio button
         breakLabel = findViewById(R.id.breakLabel);
-
         setAppBar();
 
     }
@@ -163,7 +166,6 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         }
-
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
             // Called when the user starts changing the SeekBar
@@ -176,17 +178,8 @@ public class SettingsActivity extends AppCompatActivity {
             // Not Used / Implemented
         }
 
-
-
     }
-    private void loadSeekBarProgress() {
-        // Load the progress value using SharedPreferences and set it as the progress of the SeekBar
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int breakSeekBarProgress = prefs.getInt("breakSeekBarProgress", (int) newBreakDurationInMillis);
-        int workSeekBarProgress = prefs.getInt("workSeekBarProgress", (int) newWorkDurationInMillis);
-        breakSeekBar.setProgress(breakSeekBarProgress);
-        workSeekBar.setProgress(workSeekBarProgress);
-    }
+
     class ButtonListener implements View.OnClickListener {
 
         /*
@@ -197,15 +190,14 @@ public class SettingsActivity extends AppCompatActivity {
         public void onClick(View v) {
 
             if (v.getId() == R.id.saveButton) {
-//             Save the current progress of breakSeekBar and workSeekBar
+                Toast.makeText(getApplicationContext(), "Settings saved!", Toast.LENGTH_SHORT).show();
                 SharedPreferences.Editor editor = savedPrefs.edit();
-                editor.putInt("newWorkDuration", (int) newWorkDurationInMillis);
-                editor.putInt("newBreakDuration", (int) newBreakDurationInMillis);
+                editor.putInt("breakSeekBarProgress", breakSeekBar.getProgress());
+                editor.putInt("workSeekBarProgress", workSeekBar.getProgress());
                 editor.apply();
-                loadSeekBarProgress();
-                Toast.makeText(getApplicationContext(), "Settings saved!", Toast.LENGTH_SHORT).show(); }
-
-
+                Intent intent = new Intent(SettingsActivity.this, DashboardActivity.class);
+                startActivity(intent);
+            }
         }
     }
 
@@ -302,14 +294,13 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        // Save the billAmountString and tipPercentage instance variables
-        SharedPreferences.Editor prefsEditor = savedPrefs.edit();
-        prefsEditor.putInt("breakStatus", (int) newBreakDurationInMillis);
-        prefsEditor.putInt("workStatus", (int) newWorkDurationInMillis);
-        prefsEditor.commit();
 
-        // Calling the parent onPause() must be done LAST
         super.onPause();
+
+        SharedPreferences.Editor editor = savedPrefs.edit();
+        editor.putInt("breakSeekBarProgress", breakSeekBar.getProgress());
+        editor.putInt("workSeekBarProgress", workSeekBar.getProgress());
+        editor.apply();
     }
 
 
@@ -319,9 +310,11 @@ public class SettingsActivity extends AppCompatActivity {
         // Call progress required for on resume call.
         super.onResume();
 
-        // Load the instance variables back (or default values)
-        breakStatus = savedPrefs.getInt("breakStatus", (int) newBreakDurationInMillis);
-        workStatus = savedPrefs.getInt("workStatus", (int) newWorkDurationInMillis);
+        // Restore SeekBar progress from SharedPreferences
+        int breakProgress = savedPrefs.getInt("breakSeekBarProgress", 0);
+        int workProgress = savedPrefs.getInt("workSeekBarProgress", 0);
+        breakSeekBar.setProgress(breakProgress);
+        workSeekBar.setProgress(workProgress);
     }
 
 

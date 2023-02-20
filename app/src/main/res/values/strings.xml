@@ -61,5 +61,6 @@
     <string name="send_email">Send Email</string>
     <string name="choose_settings">Choose Settings</string>
     <string name="save">Save</string>
+    <string name="notes">Note: Pomodoro technique suggest the combination of 5 + 25 and 10 + 50 minutes</string>
 
 </resources>
