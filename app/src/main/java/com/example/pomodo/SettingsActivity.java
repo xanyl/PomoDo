@@ -68,12 +68,8 @@ public class SettingsActivity extends AppCompatActivity {
         workSeekBar.setOnSeekBarChangeListener(new SeekBarListener());
         themeRadioGroup.setOnCheckedChangeListener(new RadioGroupListener());
         savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
-        int breakProgress = savedPrefs.getInt("breakSeekBarProgress", 0);
-        int workProgress = savedPrefs.getInt("workSeekBarProgress", 0);
-
-        // Set the progress of the seek bars
-//        breakSeekBar.setProgress(breakProgress);
-//        workSeekBar.setProgress(workProgress);
+        savedPrefs.getInt("breakSeekBarProgress", 0);
+        savedPrefs.getInt("workSeekBarProgress", 0);
 
         // Save appropriate variables retrieved from main to display current user settings.
         isLightTheme = intent.getBooleanExtra("isLightTheme", true);
@@ -86,6 +82,13 @@ public class SettingsActivity extends AppCompatActivity {
         lightThemeRadioButton = findViewById(R.id.lightThemeRadioButton); // assign light theme radio button
         darkThemeRadioButton = findViewById(R.id.darkThemeRadioButton); // assign dark theme radio button
         breakLabel = findViewById(R.id.breakLabel);
+        breakDescriptionLabel = findViewById(R.id.breakDescriptionLabel);
+        workDescriptionLabel = findViewById(R.id.workDescriptionLabel);
+        themeDescriptionLabel = findViewById(R.id.themeDescriptionLabel);
+        workLabel = findViewById(R.id.workLabel);
+        breakLabel = findViewById(R.id.breakLabel);
+        themeLabel = findViewById(R.id.themeLabel);
+
         setAppBar();
 
     }
@@ -108,8 +111,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
-
-
     class SeekBarListener implements SeekBar.OnSeekBarChangeListener {
 
         @Override
