@@ -47,6 +47,8 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView workDescriptionLabel;
     private TextView themeDescriptionLabel;
     private TextView themeLabel;
+    private TextView settingTitle;
+    private TextView note;
     private final static int minTimeInMinutes = 1;
     private SharedPreferences savedPrefs;
     public final String PREFS_NAME = "SeekBarPrefs";
@@ -88,6 +90,8 @@ public class SettingsActivity extends AppCompatActivity {
         workLabel = findViewById(R.id.workLabel);
         breakLabel = findViewById(R.id.breakLabel);
         themeLabel = findViewById(R.id.themeLabel);
+        settingTitle = findViewById(R.id.settingsTitle);
+        note = findViewById(R.id.note);
 
         setAppBar();
 
@@ -229,6 +233,8 @@ public class SettingsActivity extends AppCompatActivity {
         // Background colour change.
         settingsLayout.setBackgroundColor(colourBackground);
         // Text colour change
+        note.setTextColor(colourText);
+        settingTitle.setTextColor(colourText);
         breakLabel.setTextColor(colourText);
         breakDescriptionLabel.setTextColor(colourText);
         breakStatusView.setTextColor(colourText);
