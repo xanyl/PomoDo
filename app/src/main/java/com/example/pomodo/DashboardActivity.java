@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -425,21 +426,21 @@ public class DashboardActivity extends AppCompatActivity {
      * flag. This will update the colour palette to dark or light when called.
      */
     private void updateColourSchemeColour() {
-
         // Light theme colours.
         int colourBackground;
+        Resources resources = getResources();
         if (isLightTheme) {
-            colourPrimary = getResources().getColor(R.color.lightPrimary);
-            colourSecondary = getResources().getColor(R.color.lightSecondary);
-            colourText = getResources().getColor(R.color.lightText);
-            colourBackground = getResources().getColor(R.color.lightBackground);
+            colourPrimary = resources.getColor(R.color.lightPrimary, null);
+            colourSecondary = resources.getColor(R.color.lightSecondary, null);
+            colourText = resources.getColor(R.color.lightText, null);
+            colourBackground = resources.getColor(R.color.lightBackground, null);
         }
         // Dark theme colours.
         else {
-            colourPrimary = getResources().getColor(R.color.darkPrimary);
-            colourSecondary = getResources().getColor(R.color.darkSecondary);
-            colourText = getResources().getColor(R.color.darkText);
-            colourBackground = getResources().getColor(R.color.darkBackground);
+            colourPrimary = resources.getColor(R.color.darkPrimary, null);
+            colourSecondary = resources.getColor(R.color.darkSecondary, null);
+            colourText = resources.getColor(R.color.darkText, null);
+            colourBackground = resources.getColor(R.color.darkBackground, null);
         }
     }
 

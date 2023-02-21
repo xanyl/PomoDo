@@ -28,10 +28,6 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar workSeekBar;
     private TextView breakStatusView;
     private TextView workStatusView;
-
-    private int breakProgress;
-
-    private int workProgress;
     private Button saveButton;
     private int breakStatus;
     private int workStatus;
@@ -51,11 +47,9 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView workDescriptionLabel;
     private TextView themeDescriptionLabel;
     private TextView themeLabel;
-
     private final static int minTimeInMinutes = 1;
     private SharedPreferences savedPrefs;
     public final String PREFS_NAME = "SeekBarPrefs";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,15 +61,12 @@ public class SettingsActivity extends AppCompatActivity {
         workSeekBar = findViewById(R.id.workSeekBar);
         workStatusView = findViewById(R.id.workStatusView);
         themeRadioGroup = findViewById(R.id.themeRadioGroup);
-
         // Get variables from main activity, where this activity is called.
         Intent intent = getIntent();
         saveButton.setOnClickListener(new ButtonListener());
         breakSeekBar.setOnSeekBarChangeListener(new SeekBarListener());
         workSeekBar.setOnSeekBarChangeListener(new SeekBarListener());
         themeRadioGroup.setOnCheckedChangeListener(new RadioGroupListener());
-
-
         savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
         int breakProgress = savedPrefs.getInt("breakSeekBarProgress", 0);
         int workProgress = savedPrefs.getInt("workSeekBarProgress", 0);
@@ -88,11 +79,8 @@ public class SettingsActivity extends AppCompatActivity {
         isLightTheme = intent.getBooleanExtra("isLightTheme", true);
         newBreakDurationInMillis = intent.getLongExtra("setBreakDurationInMillis", DEFAULT_BREAK_DURATION);
         newWorkDurationInMillis = intent.getLongExtra("setWorkDurationInMillis", DEFAULT_WORK_DURATION);
-
         breakStatus = convertMillisToMin(newBreakDurationInMillis);
         workStatus = convertMillisToMin(newWorkDurationInMillis);
-
-
         settingsLayout = findViewById(R.id.settingsLayout); // assign constraint layout
         themeRadioGroup = findViewById(R.id.themeRadioGroup); // assign radio group
         lightThemeRadioButton = findViewById(R.id.lightThemeRadioButton); // assign light theme radio button
@@ -101,9 +89,6 @@ public class SettingsActivity extends AppCompatActivity {
         setAppBar();
 
     }
-
-
-
     class RadioGroupListener implements RadioGroup.OnCheckedChangeListener {
 
         /*
@@ -147,7 +132,6 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.putInt("breakSeekBarProgress", progress);
                 editor.apply();
             }
-
             // If the work seek bar is changed, set text view for work status.
             else if (R.id.workSeekBar == seekBar.getId()) {
                 // Get status, add minTime to accommodated for min value of 1 in seek bar.
@@ -177,9 +161,7 @@ public class SettingsActivity extends AppCompatActivity {
             // Called when the user finishes changing the SeekBar
             // Not Used / Implemented
         }
-
     }
-
     class ButtonListener implements View.OnClickListener {
 
         /*
@@ -200,15 +182,12 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
     }
-
-
     private long convertMinToMillis(int minutes) {
 
         // Return operation, converting minutes to milliseconds.
         return (minutes * 60 * 1000);
 
     }
-
     /*
      * This method accepts a parameter of milliseconds in long to be converted into an int value of
      * minutes.
@@ -217,14 +196,12 @@ public class SettingsActivity extends AppCompatActivity {
         // Return operation from millis to minutes.
         return ((int) (millis / 60 / 1000));
     }
-
     private void setAppBar() {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
         }
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -233,7 +210,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
     private void updateColourSchemeColour() {
         // Set light theme colours if appropriate.
         if (isLightTheme) {
@@ -248,7 +224,6 @@ public class SettingsActivity extends AppCompatActivity {
             colourBackground = ContextCompat.getColor(this, R.color.darkBackground);
         }
     }
-
     private void updateWidgetColourScheme() {
         // Background colour change.
         settingsLayout.setBackgroundColor(colourBackground);
@@ -271,7 +246,6 @@ public class SettingsActivity extends AppCompatActivity {
         lightThemeRadioButton.setButtonTintList(ColorStateList.valueOf(colourPrimary));
         darkThemeRadioButton.setButtonTintList(ColorStateList.valueOf(colourPrimary));
     }
-
     private void updateCurrentWidgetWithSettings() {
         // Update seek bar progress.
         breakSeekBar.setProgress(breakStatus - minTimeInMinutes);
@@ -283,7 +257,6 @@ public class SettingsActivity extends AppCompatActivity {
             themeRadioGroup.check(R.id.darkThemeRadioButton);
         }
     }
-
     private void updateActivityColourScheme() {
         // assign text view for break label
         // Update the colour scheme colours followed by the update of all widgets.
@@ -291,7 +264,6 @@ public class SettingsActivity extends AppCompatActivity {
         updateWidgetColourScheme();
         updateCurrentWidgetWithSettings();
     }
-
     @Override
     public void onPause() {
 
@@ -302,14 +274,10 @@ public class SettingsActivity extends AppCompatActivity {
         editor.putInt("workSeekBarProgress", workSeekBar.getProgress());
         editor.apply();
     }
-
-
     @Override
     public void onResume() {
-
         // Call progress required for on resume call.
         super.onResume();
-
         // Restore SeekBar progress from SharedPreferences
         int breakProgress = savedPrefs.getInt("breakSeekBarProgress", 0);
         int workProgress = savedPrefs.getInt("workSeekBarProgress", 0);
