@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.pomodo'
+    namespace 'aka.madproject.pomodo'
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.example.pomodo"
+        applicationId "aka.madproject.pomodo"
         minSdk 26
         targetSdk 32
         versionCode 1
