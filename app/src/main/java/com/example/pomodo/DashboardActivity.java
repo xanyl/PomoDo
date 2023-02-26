@@ -254,8 +254,6 @@ public class DashboardActivity extends AppCompatActivity {
         // Create an explicit intent for the main activity.
         Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
 
-        // The following properties along with the launchMode makes it so that when the
-        // notification is pressed, the activity will be resumed instead of recreated.
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -284,13 +282,8 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * Inner class for button listeners, handling all the button events within the main activity.
-     */
+
     class ButtonListener implements View.OnClickListener {
-        /*
-         * This method is automatically called when any button within main activity is pressed.
-         */
         @Override
         public void onClick(View v) {
             // Cancel notifications, state of main activity has changed.
@@ -311,10 +304,7 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * This method will instantiate a new timer depending on the time left and start/resume the
-     * timer.
-     */
+
     private void startResumeTimer() {
         // Instantiate timer with current time left.
         countDownTimer = new PomodoroTimer(timeLeftInMillis, COUNTDOWN_INTERVAL);
@@ -337,10 +327,7 @@ public class DashboardActivity extends AppCompatActivity {
         // enable timer standby mode.
         timerStandby();
     }
-    /*
-     * This method will cancel the current timer and mode and prepare to switch to the next state's
-     * timer.
-     */
+
     private void cancelTimer() {
 
         // Cancel the current timer, toggle work state, and update the timer widgets for display.
@@ -369,10 +356,6 @@ public class DashboardActivity extends AppCompatActivity {
         countdownTimeLabel.startAnimation(blinking);
     }
 
-    /*
-     * This method ensure that the current timer is prepared for timer startup (running state). This
-     * is ensuring the states of certain variables.
-     */
     private void timerStartup() {
         // Keep track that timer is now in a running state, clear blinking.
         isCountdownRunning = true;
@@ -381,10 +364,6 @@ public class DashboardActivity extends AppCompatActivity {
         startPauseButton.setText(pauseStatusLabel);
     }
 
-    /*
-     * This method updates the colours used currently in the activity depending on the isLightTheme
-     * flag. This will update the colour palette to dark or light when called.
-     */
     private void updateColourSchemeColour() {
 
         if (isLightTheme) {
@@ -432,9 +411,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * This method will update the colour scheme and then update the widgets when called.
-     */
     private void updateActivityColourScheme() {
         // Update the colour scheme colours followed by the update of all widgets.
         updateColourSchemeColour();
@@ -459,10 +435,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * This method sets the colour of the progress bar by accepting a colour value in the form of
-     * an int value as the parameter.
-     */
     private void setProgressBarColour(int colour) {
 
         // User filtering to change the colour of the progress bar drawable.
@@ -554,10 +526,6 @@ public class DashboardActivity extends AppCompatActivity {
         return ((long) minutes * 60 * 1000);
     }
 
-    /*
-     * This method will be invoked when user click android device Back menu at bottom. This
-     * overridden method will function as a "press back two times to terminate app" function.
-     */
     @Override
     public void onBackPressed() {
 

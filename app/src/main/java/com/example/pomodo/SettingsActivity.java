@@ -114,9 +114,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
     class RadioGroupListener implements RadioGroup.OnCheckedChangeListener {
 
-        /*
-         * This method is automatically called when there is a change in the RadioGroup.
-         */
+
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
 
@@ -186,10 +184,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
     class ButtonListener implements View.OnClickListener {
 
-        /*
-         * This method is automatically called when a button is pressed, if the appropriate button
-         * is pressed, perform a certain call.
-         */
         @Override
         public void onClick(View v) {
 
@@ -214,10 +208,6 @@ public class SettingsActivity extends AppCompatActivity {
         return (minutes * 60 * 1000);
 
     }
-    /*
-     * This method accepts a parameter of milliseconds in long to be converted into an int value of
-     * minutes.
-     */
     private int convertMillisToMin(long millis) {
         // Return operation from millis to minutes.
         return ((int) (millis / 60 / 1000));
