@@ -1,4 +1,5 @@
 package com.example.pomodo;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -6,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -21,15 +21,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import com.example.pomodo.login.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity {
-
     private final static int REQUEST_CODE_SETTINGS = 0;
     private final static int COUNTDOWN_INTERVAL = 150;
     private final static int NOTIFICATION_ID = 0;
@@ -43,8 +44,8 @@ public class DashboardActivity extends AppCompatActivity {
     private CharSequence startStatusLabel;
     private CharSequence pauseStatusLabel;
     private CharSequence resumeStatusLabel;
-    private long setWorkDurationInMillis ;
-    private long setBreakDurationInMillis ;
+    private long setWorkDurationInMillis;
+    private long setBreakDurationInMillis;
     private boolean isCountdownRunning;
     private long currentTotalDurationInMillis;
     private long timeLeftInMillis;
@@ -56,14 +57,14 @@ public class DashboardActivity extends AppCompatActivity {
     private long backPressedTime;
     private int breakProgress;
     private int workProgress;
-
-
+    private ConstraintLayout dashboardLayout;
+    private int colourBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-// Initialize the "set time" (default work-mode time is loaded on the first creation).
+        // Initialize the "set time" (default work-mode time is loaded on the first creation).
 
         currentTotalDurationInMillis = setWorkDurationInMillis;
         timeLeftInMillis = currentTotalDurationInMillis;
@@ -86,25 +87,20 @@ public class DashboardActivity extends AppCompatActivity {
         // Update the custom app colour scheme depending on the current colour scheme.
         updateColourSchemeColour();
 
-        // Get resources.
         startStatusLabel = getResources().getText(R.string.start_status_label);
         pauseStatusLabel = getResources().getText(R.string.pause_status_label);
         resumeStatusLabel = getResources().getText(R.string.resume_status_label);
-
-//        lightSettingsButtonImage = getResources().getDrawable(R.drawable.light_settings);
-//        darkSettingsButtonImage = getResources().getDrawable(R.drawable.dark_settings);
 
         // Set up reference instance variables with resource.
         countdownTimeLabel = findViewById(R.id.countdownTimer);
         countdownProgressBar = findViewById(R.id.progressCountdownBar);
         startPauseButton = findViewById(R.id.startPauseButton);
         cancelButton = findViewById(R.id.cancelButton);
-
+        dashboardLayout = findViewById(R.id.dashboardLayout);
 
         // Set instance variables with corresponding object listeners.
         startPauseButton.setOnClickListener(new ButtonListener());
         cancelButton.setOnClickListener(new ButtonListener());
-
 
         // Initiate an object for Blinking animation modifier.
         blinking = new AlphaAnimation(0.0f, 1.0f);
@@ -118,11 +114,22 @@ public class DashboardActivity extends AppCompatActivity {
         countdownTimeLabel.startAnimation(blinking);
         updateWidgetColourScheme();
 
-
         SharedPreferences savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
         breakProgress = savedPrefs.getInt("breakSeekBarProgress", breakProgress);
         workProgress = savedPrefs.getInt("workSeekBarProgress", workProgress);
 
+        isLightTheme = savedPrefs.getBoolean("isLightTheme", true);
+        if (isLightTheme) {
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.lightPrimary);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.lightText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.lightBackground);
+        } else {
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.darkText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.darkBackground);
+        }
+        // Update colour scheme after changing theme.
+        updateActivityColourScheme();
 
         setWorkDurationInMillis = convertMinToMillis(workProgress);
         setBreakDurationInMillis = convertMinToMillis(breakProgress);
@@ -141,22 +148,16 @@ public class DashboardActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             // Creating new intent, passing the required variable for setting display.
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-//            intent.putExtra("isLightTheme", isLightTheme);
-//            intent.putExtra("setWorkDurationInMillis", setWorkDurationInMillis);
-//            intent.putExtra("setBreakDurationInMillis", setBreakDurationInMillis);
-
             // Start activity with request for to reference it again when the settings activity is done.
             startActivity(intent);
             return true;
@@ -185,15 +186,8 @@ public class DashboardActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     class PomodoroTimer extends CountDownTimer {
 
-        /*
-         * This constructor accepts two parameters to initialize the timer to be used. First, the
-         * countdownInMillis argument determines the countdown time for the new timer. Second, the
-         * countdownInterval indicates the refresh time of the timer (how often the countdown
-         * updates.
-         */
         PomodoroTimer(long countdownInMillis, long countdownInterval) {
             super(countdownInMillis, countdownInterval);
 
@@ -203,15 +197,11 @@ public class DashboardActivity extends AppCompatActivity {
 
         @Override
         public void onTick(long millisUntilFinished) {
-
             // update instance variable responsible to keep track of current timer's countdown.
             timeLeftInMillis = millisUntilFinished;
-
             // update widget countdown widgets and text responsible for displaying the text.
             updateTimerWidgets();
-
         }
-
 
         @Override
         public void onFinish() {
@@ -234,6 +224,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         }
     }
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -276,20 +267,12 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         // Initiate notification with the correct/wanted properties.
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                 .setSmallIcon(R.drawable.ic_pomodo)
-                .setContentTitle("Pomodo").setContentText(text).setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ALARM).setContentIntent(pendingIntent).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setAutoCancel(true);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID).setSmallIcon(R.drawable.ic_pomodo).setContentTitle("Pomodo").setContentText(text).setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ALARM).setContentIntent(pendingIntent).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setAutoCancel(true);
 
         // Send notification.
         notificationManager.notify(NOTIFICATION_ID, notification.build());
     }
 
-    /*
-     * This method cancels the notification defined by the parameters. As the parameters, the
-     * current context of the activity along with the notification id is given. The context will
-     * be used to create the appropriate notification manager to cancel the correct notification
-     * given its ID.
-     */
     private static void cancelNotification(Context context, int notifyId) {
 
         NotificationManager cancelManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -305,18 +288,13 @@ public class DashboardActivity extends AppCompatActivity {
      * Inner class for button listeners, handling all the button events within the main activity.
      */
     class ButtonListener implements View.OnClickListener {
-
-
         /*
          * This method is automatically called when any button within main activity is pressed.
          */
         @Override
         public void onClick(View v) {
-
             // Cancel notifications, state of main activity has changed.
             cancelNotification(getApplicationContext(), NOTIFICATION_ID);
-
-
             // When the first timer button is pressed, run start/Resume or pause depending on state.
             if (v.getId() == R.id.startPauseButton) {
                 // Determine whether the timer is running to carry out specific methods.
@@ -338,38 +316,27 @@ public class DashboardActivity extends AppCompatActivity {
      * timer.
      */
     private void startResumeTimer() {
-
         // Instantiate timer with current time left.
         countDownTimer = new PomodoroTimer(timeLeftInMillis, COUNTDOWN_INTERVAL);
-
         // Make sure label is using the correct colour and start the timer.
         countdownTimeLabel.setTextColor(colourText);
         countDownTimer.start();
-
         // Set timer start up mode to change anythings necessary for the running timer.
         timerStartup();
     }
 
-    /*
-     * This method will pause the current timer by cancelling it and change the widget's looks
-     * depending on the current state.
-     */
     private void pauseTimer() {
-
         // cancel current timer.
         countDownTimer.cancel();
-
         // Set countdown label colour for better blinking colours.
         if (isWorkMode) {
             countdownTimeLabel.setTextColor(colourPrimary);
         } else {
             countdownTimeLabel.setTextColor(colourSecondary);
         }
-
         // enable timer standby mode.
         timerStandby();
     }
-
     /*
      * This method will cancel the current timer and mode and prepare to switch to the next state's
      * timer.
@@ -381,18 +348,13 @@ public class DashboardActivity extends AppCompatActivity {
         countDownTimer.cancel();
         toggleWorkMode();
         updateTimerWidgets();
-
         // Ensure countdownLabel has the current colour for a cancelled timer.
         countdownTimeLabel.setTextColor(colourText);
-
         // Enable timer standby mode.
         timerStandby();
     }
 
-    /*
-     * This method ensures that the current timer is prepared for standby mode, where the timer
-     * is either paused or not started yet.
-     */
+
     private void timerStandby() {
 
         // Set resume/pause button label depending on if the timer is fresh or already used.
@@ -412,11 +374,9 @@ public class DashboardActivity extends AppCompatActivity {
      * is ensuring the states of certain variables.
      */
     private void timerStartup() {
-
         // Keep track that timer is now in a running state, clear blinking.
         isCountdownRunning = true;
         countdownTimeLabel.clearAnimation();
-
         // Set startPause label to pause now that the timer is running.
         startPauseButton.setText(pauseStatusLabel);
     }
@@ -426,37 +386,30 @@ public class DashboardActivity extends AppCompatActivity {
      * flag. This will update the colour palette to dark or light when called.
      */
     private void updateColourSchemeColour() {
-        // Light theme colours.
-        int colourBackground;
-        Resources resources = getResources();
+
         if (isLightTheme) {
-            colourPrimary = resources.getColor(R.color.lightPrimary, null);
-            colourSecondary = resources.getColor(R.color.lightSecondary, null);
-            colourText = resources.getColor(R.color.lightText, null);
-            colourBackground = resources.getColor(R.color.lightBackground, null);
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.lightPrimary);
+            colourSecondary = ContextCompat.getColor(getApplicationContext(), R.color.lightSecondary);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.lightText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.lightBackground);
         }
         // Dark theme colours.
         else {
-            colourPrimary = resources.getColor(R.color.darkPrimary, null);
-            colourSecondary = resources.getColor(R.color.darkSecondary, null);
-            colourText = resources.getColor(R.color.darkText, null);
-            colourBackground = resources.getColor(R.color.darkBackground, null);
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+            colourSecondary = ContextCompat.getColor(getApplicationContext(), R.color.darkSecondary);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.darkText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.darkBackground);
         }
+
     }
 
-    /*
-     * This method will update the colour of the widgets that has to be manually updated.
-     * Specifically, this method will use the current colour platte and the isLightTheme flag to
-     * determine which image for the buttons to use. Additionally, this method will also use the
-     * current colour platte th set the colours of the background, labels and progress bar.
-     */
+
     private void updateWidgetColourScheme() {
-
-
         // Set label text colours accordingly.
         startPauseButton.setTextColor(colourText);
         cancelButton.setTextColor(colourText);
         countdownTimeLabel.setTextColor(colourText);
+        dashboardLayout.setBackgroundColor(colourBackground);
 
         // If on work mode, change colour for work related widgets accordingly.
         if (isWorkMode) {
@@ -487,12 +440,7 @@ public class DashboardActivity extends AppCompatActivity {
         updateColourSchemeColour();
         updateWidgetColourScheme();
     }
-    /*
-     * This method will update the current total time if required. Specifically, this method is
-     * designed to run after returning from the settings. If the current total time for the
-     * current timer has changed and the current timer is not started yet, change the total time
-     * to accommodate for the new change.
-     */
+
     private void updateCurrentTotalTime() {
         // If the timer is a fresh timer, update the current total time with countdown time.
         if (timeLeftInMillis == currentTotalDurationInMillis) {
@@ -520,11 +468,7 @@ public class DashboardActivity extends AppCompatActivity {
         // User filtering to change the colour of the progress bar drawable.
         countdownProgressBar.getProgressDrawable().setColorFilter(colour, android.graphics.PorterDuff.Mode.SRC_IN);
     }
-    /*
-     * This method will toggle from work mode to break mode and vise versa depending on the current
-     * mode. This method will accomplish this by changing variables and modifying attributes of
-     * appropriate widgets.
-     */
+
     private void toggleWorkMode() {
 
         // Toggle to break mode if currently in work mode.
@@ -546,14 +490,6 @@ public class DashboardActivity extends AppCompatActivity {
         countDownTimer = new PomodoroTimer(currentTotalDurationInMillis, COUNTDOWN_INTERVAL);
     }
 
-
-
-    /*
-     * This method is automatically called when the returned to the main activity from another
-     * activity. This method will use the parameters provided when returning back from an activity
-     * to request any returned variables. With this, the settings applied in the second activity
-     * can be saved once returned.
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
 
@@ -577,11 +513,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * This method is used to update all the countdown displaying related widgets. Specifically,
-     * this method updates the countdown label and updates the progress bar as time ticks. Also,
-     * ensure that while the timer is running, never let the progress percent reach 0.
-     */
     private void updateTimerWidgets() {
         // Update countdown label.
         updateCountDownText();
@@ -621,7 +552,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Return operation, converting minutes to milliseconds.
         return ((long) minutes * 60 * 1000);
-
     }
 
     /*
@@ -633,13 +563,10 @@ public class DashboardActivity extends AppCompatActivity {
 
         // If the second back press is within 2000 millis of the first back press, kill app.
         if (backPressedTime + 2000 > System.currentTimeMillis()) {
-
             // Call original back press to run required processes for a back press.
             super.onBackPressed();
-
             // Hard kill app.
             android.os.Process.killProcess(android.os.Process.myPid());
-
         }
         // If too late or first time pressing back, prompt user the instructions to exit and record
         // the time.

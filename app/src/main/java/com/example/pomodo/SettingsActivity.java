@@ -93,6 +93,22 @@ public class SettingsActivity extends AppCompatActivity {
         settingTitle = findViewById(R.id.settingsTitle);
         note = findViewById(R.id.note);
 
+        savedPrefs = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
+        isLightTheme = savedPrefs.getBoolean("isLightTheme", true);
+        if (isLightTheme) {
+            lightThemeRadioButton.setChecked(true);
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.lightPrimary);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.lightText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.lightBackground);
+        } else {
+            darkThemeRadioButton.setChecked(true);
+            colourPrimary = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+            colourText = ContextCompat.getColor(getApplicationContext(), R.color.darkText);
+            colourBackground = ContextCompat.getColor(getApplicationContext(), R.color.darkBackground);
+        }
+        // Update colour scheme after changing theme.
+        updateActivityColourScheme();
+
         setAppBar();
 
     }
@@ -112,6 +128,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
             // Update colour scheme after changing theme.
             updateActivityColourScheme();
+
         }
 
     }
@@ -181,6 +198,10 @@ public class SettingsActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = savedPrefs.edit();
                 editor.putInt("breakSeekBarProgress", breakSeekBar.getProgress());
                 editor.putInt("workSeekBarProgress", workSeekBar.getProgress());
+                editor.putBoolean("isLightTheme", isLightTheme);
+                editor.putInt("colorPrimary", colourPrimary);
+                editor.putInt("colorText", colourText);
+                editor.putInt("colorBackground", colourBackground);
                 editor.apply();
                 Intent intent = new Intent(SettingsActivity.this, DashboardActivity.class);
                 startActivity(intent);
